@@ -41,6 +41,7 @@ Open `index.html` through GitHub Pages (see the website link in the About box of
 ## Using the pages
 
 - Every page is a single self-contained HTML file; no installation is needed.
+- Every page starts with a Concept section: what the topic means, what it does, its formal definition, a runnable diagram, practical examples, key terms and common mix-ups.
 - Each page works on a projector (white background) and can be printed or saved as PDF with the Print button.
 - Keyboard: ← and → change problem, Space advances most simulators.
 

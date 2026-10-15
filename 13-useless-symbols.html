@@ -250,4 +250,146 @@ function fixLabels(svg){if(!svg||!svg.querySelectorAll)return;const rects=[...sv
  labs.forEach(L=>{if(!L.dx&&!L.dy)return;[L.r,...L.t,...L.b].forEach(e=>e.setAttribute('transform',`translate(${L.dx.toFixed(1)},${L.dy.toFixed(1)})`))})}
 (function(){for(const n of ['draw','drawG','drawTM','drawPDA','drawFSM','graph']){const f=window[n];if(typeof f==='function'&&!f.__fx){const g=function(svg,...a){const r=f.call(this,svg,...a);try{fixLabels(svg)}catch(e){}return r};g.__fx=true;window[n]=g}}})();
 
-</script></body></html>
+</script><script>
+(function(){'use strict';
+const NS='http://www.w3.org/2000/svg';
+const h=(tag,attrs,html)=>{const e=document.createElement(tag);if(attrs)for(const k in attrs){if(k==='class')e.className=attrs[k];else if(k.slice(0,2)==='on')e[k]=attrs[k];else e.setAttribute(k,attrs[k])}if(html!=null)e.innerHTML=html;return e};
+const sv=(p,t,a,txt)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;if(p)p.appendChild(e);return e};
+let UID=0;const R=26;
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const disp=a=>a.length?a.map(x=>x==='Z'?'Z₀':x).join(''):'ε';
+const N=(id,x,y,o)=>Object.assign({id,x,y},o||{});
+const E=(f,t,l,o)=>Object.assign({f,t,l},o||{});
+const CSS=`.cv{margin:0 0 30px;padding-bottom:6px;border-bottom:4px solid #f5892a}.cv h3{color:var(--navy);font-size:19px;margin:0 0 6px}.cvhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}.cvtag{background:var(--navy);color:#fff;font-weight:700;border-radius:8px;padding:2px 12px;font-size:15px}.cvt{margin:0;font-size:28px;color:var(--navy);line-height:1.2}
+.cvflow{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap;margin:14px 0}.cvbox{flex:1 1 210px;border:2px solid var(--navy);border-radius:12px;padding:10px 14px;background:#fff;font-size:16px}.cvbox.mid{background:#fffbe0;border-color:var(--accent)}.cvbox .cvl{display:block;font-size:13px;color:var(--muted);margin-bottom:2px}.cvarrow{align-self:center;font-size:30px;color:var(--accent-ink);font-weight:700}
+.cvtwo{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0}.cvcard{border:1px solid var(--line);border-radius:10px;padding:12px 16px;background:#fff}.cvcard p{margin:0}
+.cvformal{background:#f3f7fd;border-left:6px solid var(--navy);border-radius:8px;padding:12px 18px;margin:14px 0}.cvformal h3{margin-bottom:8px}.fl{font-family:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;font-size:15.5px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
+.cvsec{margin:18px 0}.cvsec>h3{margin-bottom:8px}.cvviz{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,430px),1fr));gap:14px}.cvv{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#fff;min-width:0}.cvv.wide{grid-column:1/-1}.cvv h4{margin:0 0 6px;font-size:17px;color:var(--navy)}.cvcap{color:var(--muted);font-size:14.5px;margin:6px 0 0}
+.cvsvg{width:100%;height:auto;max-height:340px;display:block}.cvtree{width:100%;height:auto;max-height:360px;display:block}.cvnest{width:100%;max-width:640px;height:auto;display:block}
+.cvrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}.cvin{font-family:'IBM Plex Mono',monospace;font-size:18px;padding:5px 10px;border:2px solid var(--navy);border-radius:8px;width:150px}.cvchip{font-family:'IBM Plex Mono',monospace;font-size:14px;border:1.5px solid var(--line);background:#fff;border-radius:6px;padding:2px 9px;cursor:pointer}.cvchip:hover{border-color:var(--navy)}
+.cvnote{background:var(--soft);border-radius:8px;padding:8px 12px;min-height:40px;font-size:15.5px;margin:8px 0}.cvnote.acc{background:#e6f4ea;color:#1d5a37}.cvnote.rej{background:#fbe0e0;color:#8a1c16}
+.cvtape{display:flex;gap:3px;flex-wrap:wrap;margin:6px 0}.cvcell{width:36px;height:40px;border:2px solid var(--navy);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;background:#fff}.cvcell.read{background:#e8edf5;color:#7a8597;border-color:#b6c0cf}.cvcell.head{border-color:var(--accent);background:#fff8b8;box-shadow:0 0 0 2px #fff8b8}.cvcell.bl{color:#b0b8c5;border-color:#c7cfdb}
+.cvstack{display:flex;flex-direction:column;align-items:center;gap:3px}.cvsb{min-width:80px;height:34px;border:2px solid var(--navy);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-weight:700;background:#fff;padding:0 8px}.cvsb.top{border-color:var(--accent);background:#fff8b8}.cvbase{width:96px;border-top:4px solid var(--navy);font-size:12px;color:var(--muted);text-align:center}.cvpair{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start}
+.cvgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}.cvp{border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:8px;padding:10px 14px;background:#fff}.cvp b{display:block;color:var(--navy);margin-bottom:2px}.cvp span{font-size:15.5px;color:#2d3a52}
+.cvterms{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px 18px}.cvterms div{font-size:15.5px}.cvterms b{color:var(--navy)}
+.cvwarn{border-left:5px solid var(--red);background:#fdf0ef;border-radius:8px;padding:8px 16px 8px 30px;margin:0}.cvwarn li{margin:4px 0}.cvfits{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:16px;color:var(--muted)}
+.cvtab{border-collapse:collapse;width:100%;font-size:15px;margin-top:8px}.cvtab th,.cvtab td{border:1px solid var(--line);padding:5px 9px;text-align:left;vertical-align:top}.cvtab th{background:#eef2f8;color:var(--navy)}.cvtab .m{font-family:'IBM Plex Mono',monospace}.cvtab .ok{color:var(--green);font-weight:700}.cvtab .no{color:var(--red);font-weight:700}.cvtab mark{background:#fff8b8;outline:1.5px solid var(--accent);border-radius:3px;padding:0 3px}.cvtab s{color:#98a1b0}
+.cvpipe{display:flex;gap:8px;flex-wrap:wrap;align-items:stretch}.cvpipe>div{flex:1 1 150px;border:2px solid var(--navy);border-radius:10px;padding:8px 10px;background:#fff;font-size:14.5px}.cvpipe>div b{display:block;color:var(--accent-ink);font-size:13px}.cvpipe .m{font-family:'IBM Plex Mono',monospace;white-space:pre-wrap}.cvpipe>.ar{flex:0 0 auto;border:0;align-self:center;font-size:24px;padding:0;color:var(--accent-ink)}.cvcode{font-family:'IBM Plex Mono',monospace;font-size:14px;background:#fbfcfe;border:1px solid var(--line);border-radius:8px;padding:10px 14px;white-space:pre;overflow:auto;margin:0}
+@media (max-width:760px){.cvtwo{grid-template-columns:1fr}.cvarrow{display:none}}@media print{.cvrow,.cvfits .btn{display:none}}`;
+const st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);
+// ---------------- state diagrams
+function fsm(svg,spec,o){o=o||{};svg.innerHTML='';const U='cv'+(++UID)+'_';const Nn={};spec.nodes.forEach(n=>Nn[n.id]=n);
+ const defs=sv(svg,'defs',{});[['a','#1f3a68'],['h','#f5892a'],['g','#8a94a6']].forEach(([k,c])=>{const m=sv(defs,'marker',{id:U+k,viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:7,markerHeight:7,orient:'auto'});sv(m,'path',{d:'M0,0 L10,5 L0,10 z',fill:c})});
+ const gE=sv(svg,'g',{}),gL=sv(svg,'g',{}),gS=sv(svg,'g',{});let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;const ext=(x,y)=>{x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y)};const rad=n=>n.w?n.w/2:R;const hl=o.hl||[];const cur=new Set(o.cur||[]);
+ const hasRev=e=>spec.edges.some(f=>f!==e&&f.f===e.t&&f.t===e.f&&f.t!==f.f);const lh=17;
+ const label=(e,lines,lx,ly,mode,H)=>{if(!lines.length)return;const w=Math.max(...lines.map(s=>String(s).length))*8.4+12,hh=lines.length*lh+4;let left=lx-w/2,top=ly-hh/2;
+  if(mode==='top')top=ly+5-hh;else if(mode==='bottom')top=ly-5;else if(mode==='right')left=lx-5;else if(mode==='left')left=lx+5-w;
+  if(e.lo){left+=e.lo[0];top+=e.lo[1]}
+  sv(gL,'rect',{x:left,y:top,width:w,height:hh,rx:4,fill:'#fff','fill-opacity':.95,stroke:H?'#f5892a':'none'});ext(left,top);ext(left+w,top+hh);
+  lines.forEach((s,j)=>sv(gL,'text',{x:left+w/2,y:top+14+j*lh,'text-anchor':'middle','font-size':14,'font-weight':H?700:500,fill:H?'#c8640f':e.dashed?'#4a5568':'#1f3a68','font-family':'IBM Plex Mono, monospace'},String(s)))};
+ spec.edges.forEach((e,i)=>{const A=Nn[e.f],B=Nn[e.t];const H=hl.includes(i);const col=H?'#f5892a':e.dashed?'#8a94a6':'#1f3a68',mk=`url(#${U}${H?'h':e.dashed?'g':'a'})`;const lines=Array.isArray(e.l)?e.l:(e.l===''||e.l==null?[]:[e.l]);
+  if(e.f===e.t){const dir=e.loop||'top';const d={top:-Math.PI/2,bottom:Math.PI/2,left:Math.PI,right:0}[dir];const r=rad(A);let P1,P2,C1,C2,lx,ly;
+   if(A.w&&(dir==='top'||dir==='bottom')){const sg=d<0?-1:1;P1=[A.x-14,A.y+sg*R];P2=[A.x+14,A.y+sg*R];C1=[A.x-36,A.y+sg*(R+58)];C2=[A.x+36,A.y+sg*(R+58)];lx=A.x;ly=A.y+sg*(R+46)}
+   else if(A.w){const sg=dir==='right'?1:-1;P1=[A.x+sg*r,A.y-14];P2=[A.x+sg*r,A.y+14];C1=[A.x+sg*(r+58),A.y-36];C2=[A.x+sg*(r+58),A.y+36];lx=A.x+sg*(r+46);ly=A.y}
+   else{const s=.42;P1=[A.x+R*Math.cos(d-s),A.y+R*Math.sin(d-s)];P2=[A.x+R*Math.cos(d+s),A.y+R*Math.sin(d+s)];C1=[A.x+(R+62)*Math.cos(d-.55),A.y+(R+62)*Math.sin(d-.55)];C2=[A.x+(R+62)*Math.cos(d+.55),A.y+(R+62)*Math.sin(d+.55)];lx=A.x+(R+46)*Math.cos(d);ly=A.y+(R+46)*Math.sin(d)}
+   const pa={d:`M${P1} C${C1} ${C2} ${P2}`,fill:'none',stroke:col,'stroke-width':H?3.4:2.2,'marker-end':mk};if(e.dashed)pa['stroke-dasharray']='6 5';sv(gE,'path',pa);label(e,lines,lx,ly,dir,H);return}
+  const dx=B.x-A.x,dy=B.y-A.y,L=Math.hypot(dx,dy)||1,nx=dy/L,ny=-dx/L;const bend=e.bend!=null?e.bend:(hasRev(e)?28:0);const C=[(A.x+B.x)/2+nx*bend,(A.y+B.y)/2+ny*bend];
+  const pt=(P,Q)=>{const ddx=Q[0]-P.x,ddy=Q[1]-P.y,l=Math.hypot(ddx,ddy)||1;if(P.w){const t=Math.min((P.w/2)/Math.abs(ddx||1e-9),R/Math.abs(ddy||1e-9));return[P.x+ddx*t,P.y+ddy*t]}return[P.x+R*ddx/l,P.y+R*ddy/l]};const P0=pt(A,C),P2=pt(B,C);
+  const pa={d:`M${P0} Q${C} ${P2}`,fill:'none',stroke:col,'stroke-width':H?3.4:2.2,'marker-end':mk};if(e.dashed)pa['stroke-dasharray']='6 5';sv(gE,'path',pa);label(e,lines,.25*P0[0]+.5*C[0]+.25*P2[0],.25*P0[1]+.5*C[1]+.25*P2[1],'mid',H)});
+ spec.nodes.forEach(n=>{const r=rad(n);if(n.start){sv(gE,'line',{x1:n.x-r-44,y1:n.y,x2:n.x-r-2,y2:n.y,stroke:'#1f3a68','stroke-width':2.4,'marker-end':`url(#${U}a)`});sv(gE,'text',{x:n.x-r-46,y:n.y-8,'font-size':13,fill:'#5b6779'},'start');ext(n.x-r-50,n.y)}
+  let f=n.fill||'#fff',s=n.stroke||'#1f3a68';const now=cur.has(n.id);if(now){if(o.verdict==='acc'){f='#d8f0df';s='#2e7d4f'}else if(o.verdict==='rej'){f='#fbe0e0';s='#b3261e'}else{f='#fff8b8';s='#f5892a'}}
+  if(n.w){sv(gS,'rect',{x:n.x-r,y:n.y-R,width:2*r,height:2*R,rx:R,fill:f,stroke:s,'stroke-width':now?4:2.4});if(n.final)sv(gS,'rect',{x:n.x-r+5,y:n.y-R+5,width:2*r-10,height:2*R-10,rx:R-5,fill:'none',stroke:s,'stroke-width':2})}
+  else{sv(gS,'circle',{cx:n.x,cy:n.y,r:R,fill:f,stroke:s,'stroke-width':now?4:2.4});if(n.final)sv(gS,'circle',{cx:n.x,cy:n.y,r:R-5,fill:'none',stroke:s,'stroke-width':2})}
+  const lab=n.label||n.id;sv(gS,'text',{x:n.x,y:n.y+5,'text-anchor':'middle','font-size':lab.length>5?12:lab.length>2?14:16,'font-weight':700,fill:'#14213d','font-family':'IBM Plex Mono, monospace'},lab);
+  if(n.sub)sv(gS,'text',{x:n.x,y:n.y+R+17,'text-anchor':'middle','font-size':12,fill:'#5b6779'},n.sub);ext(n.x-r-8,n.y-R-8);ext(n.x+r+8,n.y+R+(n.sub?24:8))});
+ {const mw=540,w=x1-x0;if(w<mw){const d=(mw-w)/2;x0-=d;x1+=d}}svg.setAttribute('viewBox',`${x0-6} ${y0-6} ${x1-x0+12} ${y1-y0+12}`)}
+// ---------------- simulators
+const start=s=>s.nodes.find(n=>n.start).id;const finals=s=>new Set(s.nodes.filter(n=>n.final).map(n=>n.id));
+const pedges=s=>{const o=[];s.edges.forEach((e,i)=>(Array.isArray(e.l)?e.l:[e.l]).forEach(l=>o.push({i,f:e.f,t:e.t,l:String(l)})));return o};
+const fmt=a=>'{'+a.join(', ')+'}';
+function fin(steps,ok,msg){const l=steps[steps.length-1];l.verdict=ok?'acc':'rej';l.note+=' '+(msg||(ok?'The machine is in a final state: ACCEPT.':'Not in a final state: REJECT.'));return steps}
+function simFA(sp,w){const kind=sp.sim,Es=pedges(sp).map(x=>({...x,syms:x.l.split(',').map(s=>s.trim())})),F=finals(sp),steps=[];
+ const mv=(S,a)=>{const T=[],ed=[];S.forEach(q=>Es.forEach(e=>{if(e.f===q&&e.syms.includes(a)){if(!T.includes(e.t))T.push(e.t);ed.push(e.i)}}));return[T,ed]};
+ const cl=S=>{const C=[...S],ed=[],st=[...S];while(st.length){const q=st.pop();Es.forEach(e=>{if(e.f===q&&e.syms.includes('ε')){ed.push(e.i);if(!C.includes(e.t)){C.push(e.t);st.push(e.t)}}})}return[C,ed]};
+ let cur=[start(sp)];if(kind==='enfa'){const[c,ed]=cl(cur);cur=c;steps.push({cur,edges:ed,pos:0,note:`Start: ECLOSE(${start(sp)}) = ${fmt(cur)}.`})}else steps.push({cur,edges:[],pos:0,note:`Start in ${cur[0]}.`});
+ for(let i=0;i<w.length;i++){const a=w[i],[T,ed]=mv(cur,a);
+  if(kind==='dfa'){if(!T.length){steps.push({cur:[],edges:[],pos:i+1,note:`No arrow for ${a} from ${cur[0]}.`});return fin(steps,false,'Stuck: REJECT.')}steps.push({cur:T,edges:ed,pos:i+1,note:`Read ${a}: ${cur[0]} → ${T[0]}.`});cur=T}
+  else if(kind==='nfa'){steps.push({cur:T,edges:ed,pos:i+1,note:`Read ${a}: ${fmt(cur)} → ${fmt(T)}${T.length?'':' (every branch died)'}.`});cur=T;if(!T.length)return fin(steps,false,'No branch is left: REJECT.')}
+  else{steps.push({cur:T,edges:ed,pos:i+1,note:`Read ${a}: move gives ${fmt(T)}.`});const[C,e2]=cl(T);steps.push({cur:C,edges:e2,pos:i+1,note:`ε-closure: ${fmt(C)}.`});cur=C}}
+ return fin(steps,cur.some(q=>F.has(q)),cur.some(q=>F.has(q))?`The set contains a final state: ACCEPT.`:`The set contains no final state: REJECT.`)}
+function simPDA(sp,w){const acc=sp.accept||'final',Es=[];const nz=s=>s.replace(/Z₀/g,'Z');pedges(sp).forEach(x=>{const[l,r]=x.l.split('/');const[a,X]=l.split(',').map(s=>s.trim());const g=(r||'').trim();Es.push({i:x.i,f:x.f,t:x.t,a:a==='ε'?'':a,X:nz(X),g:g===''||g==='ε'?[]:[...nz(g)]})});
+ const F=finals(sp),key=c=>c.q+'|'+c.i+'|'+c.st.join(''),c0={q:start(sp),i:0,st:[...(sp.init||['Z'])],prev:null,e:null},seen=new Set([key(c0)]),Q=[c0];let best=c0;
+ const build=(c,ok)=>{const p=[];for(let x=c;x;x=x.prev)p.unshift(x);const steps=p.map((x,j)=>({cur:[x.q],edges:x.e?[x.e.i]:[],pos:x.i,stack:x.st,note:j===0?`Start: state ${x.q}, stack ${disp(x.st)}.`:`${x.e.a?'Read '+x.e.a:'ε-move'}: top ${disp([x.e.X])} ${x.e.g.length?'replaced by '+disp(x.e.g):'popped'}.`}));return fin(steps,ok,ok?(acc==='final'?'All input read, final state: ACCEPT.':'All input read and the stack is empty: ACCEPT.'):'No sequence of moves accepts. The furthest attempt is shown: REJECT.')};
+ for(let k=0;k<Q.length&&k<30000;k++){const c=Q[k];if(c.i>best.i)best=c;if(c.i===w.length&&(acc==='final'?F.has(c.q):c.st.length===0))return build(c,true);
+  for(const e of Es){if(e.f!==c.q||c.st[0]!==e.X)continue;if(e.a&&w[c.i]!==e.a)continue;const st=[...e.g,...c.st.slice(1)];if(st.length>w.length*2+6)continue;const n={q:e.t,i:c.i+(e.a?1:0),st,prev:c,e},kk=key(n);if(!seen.has(kk)){seen.add(kk);Q.push(n)}}}
+ return build(best,false)}
+function simTM(sp,w){const T={};pedges(sp).forEach(x=>{const m=x.l.match(/^(.+?)→(.+?),([LR])$/);if(m)T[x.f+','+m[1]]={t:x.t,w:m[2],D:m[3],i:x.i}});const tape={};[...w].forEach((c,i)=>tape[i]=c);let q=start(sp),head=0;const steps=[{cur:[q],edges:[],tape:{...tape},head,note:`Start in ${q} with the head on the first symbol.`}];
+ for(let s=0;s<500;s++){if(q==='qa')break;const sym=tape[head]??'B',t=T[q+','+sym];if(!t){steps.push({cur:sp.nodes.some(n=>n.id==='qr')?['qr']:[q],edges:[],tape:{...tape},head,note:`No transition for (${q}, ${sym}).`});return fin(steps,false,'The machine rejects.')}
+  tape[head]=t.w;head+=t.D==='R'?1:-1;steps.push({cur:[t.t],edges:[t.i],tape:{...tape},head,note:`In ${q} read ${sym}: write ${t.w}, move ${t.D}, go to ${t.t}.`});q=t.t}
+ return fin(steps,q==='qa',q==='qa'?'Halted in qa: ACCEPT.':'Did not halt in qa: REJECT.')}
+function runner(spec){const box=h('div');const svg=sv(null,'svg',{class:'cvsvg'});const dw=h('div');dw.appendChild(svg);const inp=h('input',{class:'cvin',value:spec.input||'','aria-label':'input string',spellcheck:'false'});
+ const prev=h('button',{class:'btn'},'◀ Back'),next=h('button',{class:'btn pri'},'Step ▶'),play=h('button',{class:'btn'},'Play'),rs=h('button',{class:'btn'},'Reset');const chips=h('span');(spec.examples||[]).forEach(x=>chips.appendChild(h('button',{class:'cvchip',onclick:()=>{inp.value=x;reset()}},x||'ε')));
+ const r1=h('div',{class:'cvrow'});r1.append(h('label',{},'input:'),inp,h('span',{class:'lbl'},'try:'),chips);const r2=h('div',{class:'cvrow'});r2.append(prev,next,play,rs);const extra=h('div'),note=h('div',{class:'cvnote'});let steps=[],k=0,timer=null;
+ const sim=spec.sim;const stop=()=>{if(timer){clearInterval(timer);timer=null;play.textContent='Play'}};
+ function reset(){stop();const w=inp.value.trim().replace(/\s+/g,'');steps=sim==='pda'?simPDA(spec,w):sim==='tm'?simTM(spec,w):simFA(spec,w);k=0;show()}
+ function show(){const s=steps[k],w=inp.value.trim();fsm(svg,spec,{cur:s.cur,hl:s.edges,verdict:s.verdict});note.className='cvnote '+(s.verdict||'');note.innerHTML=`<b>Step ${k} of ${steps.length-1}.</b> ${esc(s.note)}`;
+  if(sim==='tm'){let c='';for(let i=s.head-6;i<=s.head+6;i++){const x=s.tape[i]??'B';c+=`<div class="cvcell ${i===s.head?'head':''} ${x==='B'?'bl':''}">${x}</div>`}extra.innerHTML=`<div class="cvtape">${c}</div>`}
+  else{const tp=`<div class="cvtape">${[...w].map((c,i)=>`<div class="cvcell ${i<s.pos?'read':''} ${i===s.pos&&k<steps.length-1?'head':''}">${esc(c)}</div>`).join('')||'<div class="cvcell">ε</div>'}</div>`;
+   extra.innerHTML=sim==='pda'?`<div class="cvpair"><div><div class="lbl">input</div>${tp}</div><div><div class="lbl">stack (top first)</div><div class="cvstack">${s.stack.length?s.stack.map((x,j)=>`<div class="cvsb ${j===0?'top':''}">${x==='Z'?'Z₀':esc(x)}</div>`).join(''):'<div class="lbl">empty</div>'}<div class="cvbase">bottom</div></div></div></div>`:tp}
+  prev.disabled=k===0;next.disabled=k>=steps.length-1}
+ prev.onclick=()=>{stop();if(k>0){k--;show()}};next.onclick=()=>{stop();if(k<steps.length-1){k++;show()}};rs.onclick=reset;inp.oninput=reset;
+ play.onclick=()=>{if(timer){stop();return}if(k>=steps.length-1)k=0;play.textContent='Pause';timer=setInterval(()=>{if(k>=steps.length-1){stop();return}k++;show()},750)};
+ box.append(r1,dw,r2,extra,note);reset();return box}
+// ---------------- trees
+function layout(root){let leaf=0;const nodes=[];(function lay(n,d,p){n.d=d;n.par=p;if(!n.ch||!n.ch.length)n.x=leaf++;else{n.ch.forEach(c=>lay(c,d+1,n));n.x=(n.ch[0].x+n.ch[n.ch.length-1].x)/2}nodes.push(n)})(root,0,null);return{nodes,leaves:leaf}}
+const internalPre=root=>{const a=[];(function f(n){if(n.ch&&n.ch.length){a.push(n);n.ch.forEach(f)}})(root);return a};
+function drawTree(svg,root,k,tw){tw=tw||56;svg.innerHTML='';const{nodes,leaves}=layout(root);const pre=internalPre(root),exp=new Set(k==null?pre:pre.slice(0,k)),last=k?pre[k-1]:null;const D=Math.max(...nodes.map(n=>n.d));
+ svg.setAttribute('viewBox',`-30 -34 ${Math.max(leaves*tw,150)+30} ${D*62+72}`);const vis=n=>!n.par||(exp.has(n.par)&&vis(n.par));
+ nodes.forEach(n=>{if(vis(n)&&n.ch&&exp.has(n))n.ch.forEach(c=>sv(svg,'line',{x1:n.x*tw,y1:n.d*62,x2:c.x*tw,y2:c.d*62,stroke:n===last?'#f5892a':'#9aa6b8','stroke-width':n===last?3:2}))});
+ nodes.forEach(n=>{if(!vis(n))return;const X=n.x*tw,Y=n.d*62,leaf=!n.ch;const w=Math.max(34,String(n.s).length*9.5+16);
+  if(leaf)sv(svg,'rect',{x:X-w/2,y:Y-15,width:w,height:30,rx:6,fill:n.eps?'#f5f7fa':'#e6f4ea',stroke:n.eps?'#9aa6b8':'#2e7d4f','stroke-width':2});
+  else{const ex=exp.has(n);sv(svg,'rect',{x:X-w/2,y:Y-16,width:w,height:32,rx:16,fill:n===last?'#fff8b8':'#fff',stroke:ex?(n===last?'#f5892a':'#1f3a68'):'#f5892a','stroke-width':n===last?3:2.2,'stroke-dasharray':ex?'':'5 4'})}
+  sv(svg,'text',{x:X,y:Y+5,'text-anchor':'middle','font-size':14,'font-weight':700,fill:'#14213d','font-family':'IBM Plex Mono, monospace'},n.s);if(n.val!=null)sv(svg,'text',{x:X,y:Y-22,'text-anchor':'middle','font-size':12,'font-weight':700,fill:'#c8640f'},'= '+n.val)})}
+function treeRunner(spec){const box=h('div');const svg=sv(null,'svg',{class:'cvtree'});const dw=h('div');dw.appendChild(svg);const pre=internalPre(spec.root);let k=0,timer=null;
+ const prev=h('button',{class:'btn'},'◀ Back'),next=h('button',{class:'btn pri'},'Step ▶'),play=h('button',{class:'btn'},'Play'),rs=h('button',{class:'btn'},'Reset'),all=h('button',{class:'btn'},'Show all');const r=h('div',{class:'cvrow'});r.append(prev,next,play,all,rs);const note=h('div',{class:'cvnote'}),form=h('div',{class:'cvnote'});
+ const stop=()=>{if(timer){clearInterval(timer);timer=null;play.textContent='Play'}};
+ function sent(){const{nodes}=layout(spec.root);const exp=new Set(pre.slice(0,k));const vis=n=>!n.par||(exp.has(n.par)&&vis(n.par));return nodes.filter(n=>vis(n)&&!(n.ch&&exp.has(n))&&!n.eps).sort((a,b)=>a.x-b.x).map(n=>n.s).join(spec.sep||'')}
+ function show(){drawTree(svg,spec.root,k,spec.tw);const n=pre[k-1];note.innerHTML=k?`<b>Step ${k} of ${pre.length}.</b> Replace the leftmost variable with the rule <span class="m">${esc(n.s)} → ${esc(n.ch.map(c=>c.s).join(' '))}</span>.`:`<b>Start.</b> The tree has only its root, the start symbol.`;form.innerHTML=`Current string: <b class="m">${esc(sent())}</b>${k===pre.length?' (only terminals are left: the string is complete)':''}`;prev.disabled=k===0;next.disabled=k>=pre.length}
+ prev.onclick=()=>{stop();if(k>0){k--;show()}};next.onclick=()=>{stop();if(k<pre.length){k++;show()}};rs.onclick=()=>{stop();k=0;show()};all.onclick=()=>{stop();k=pre.length;show()};play.onclick=()=>{if(timer){stop();return}if(k>=pre.length)k=0;play.textContent='Pause';timer=setInterval(()=>{if(k>=pre.length){stop();return}k++;show()},900)};
+ box.append(dw,r,note,form);show();return box}
+function staticTrees(spec){const box=h('div',{class:'cvviz'});spec.trees.forEach(t=>{const c=h('div');c.appendChild(h('div',{class:'lbl'},esc(t.title)));const s=sv(null,'svg',{class:'cvtree'});c.appendChild(s);box.appendChild(c);drawTree(s,t.root,null,spec.tw||60)});return box}
+function nest(rings,hi){const n=rings.length,W=640,H=50+n*56;let s=`<svg viewBox="0 0 ${W} ${H}" class="cvnest" role="img">`;rings.forEach((r,i)=>{const x=8+i*38,y=8+i*50,w=W-16-i*76,hh=H-16-i*60;const on=hi===i;s+=`<rect x="${x}" y="${y}" width="${w}" height="${hh}" rx="18" fill="${r[2]||'#fff'}" stroke="${on?'#f5892a':'#1f3a68'}" stroke-width="${on?4:2}"/><text x="${x+16}" y="${y+25}" font-size="16" font-weight="700" fill="#1f3a68">${esc(r[0])}</text><text x="${x+16}" y="${y+43}" font-size="12.5" fill="#5b6779">${esc(r[1]||'')}</text>`});return s+'</svg>'}
+function viz(v){const c=h('div',{class:'cvv'+((v.wide||(v.kind==='fsm'&&v.sim))?' wide':'')});if(v.title)c.appendChild(h('h4',{},v.title));
+ if(v.kind==='fsm'){if(v.sim)c.appendChild(runner(v));else{const s=sv(null,'svg',{class:'cvsvg'});c.appendChild(s);fsm(s,v)}}
+ else if(v.kind==='tree')c.appendChild(treeRunner(v));else if(v.kind==='trees')c.appendChild(staticTrees(v));
+ else if(v.kind==='html'){const d=h('div');d.innerHTML=typeof v.html==='function'?v.html():v.html;c.appendChild(d)}
+ if(v.caption)c.appendChild(h('p',{class:'cvcap'},v.caption));return c}
+function mount(d){const T=document.getElementById('method')||document.getElementById('s0');if(!T||T.querySelector('.cv'))return;const b=h('div',{class:'cv'});
+ b.appendChild(h('div',{class:'cvhead'},`<span class="cvtag">Concept</span><h2 class="cvt">${d.name}</h2>`));
+ b.appendChild(h('div',{class:'cvflow'},`<div class="cvbox"><b class="cvl">Input</b>${d.io[0]}</div><div class="cvarrow" aria-hidden="true">→</div><div class="cvbox mid"><b class="cvl">What it does</b>${d.io[1]}</div><div class="cvarrow" aria-hidden="true">→</div><div class="cvbox"><b class="cvl">Output</b>${d.io[2]}</div>`));
+ b.appendChild(h('div',{class:'cvtwo'},`<div class="cvcard"><h3>What it means, in plain words</h3><p>${d.plain}</p></div><div class="cvcard"><h3>What it does</h3><p>${d.does}</p></div>`));
+ b.appendChild(h('div',{class:'cvformal'},`<h3>Formal definition</h3>${d.formal.map(l=>`<div class="fl">${l}</div>`).join('')}`));
+ const vs=h('div',{class:'cvsec'});vs.appendChild(h('h3',{},'See it in action'));const vz=h('div',{class:'cvviz'});d.viz.forEach(v=>vz.appendChild(viz(v)));vs.appendChild(vz);b.appendChild(vs);
+ b.appendChild(h('div',{class:'cvsec'},`<h3>Where you meet it in practice</h3><div class="cvgrid">${d.practical.map(p=>`<div class="cvp"><b>${p[0]}</b><span>${p[1]}</span></div>`).join('')}</div>`));
+ b.appendChild(h('div',{class:'cvsec'},`<h3>Key terms</h3><div class="cvterms">${d.terms.map(t=>`<div><b>${t[0]}</b>: ${t[1]}</div>`).join('')}</div>`));
+ if(d.confuse&&d.confuse.length)b.appendChild(h('div',{class:'cvsec'},`<h3>Do not confuse</h3><ul class="cvwarn">${d.confuse.map(x=>`<li>${x}</li>`).join('')}</ul>`));
+ const fits=h('div',{class:'cvfits'},d.fits?`<span>${d.fits}</span>`:'');const btns=[...T.querySelectorAll('button.btn.pri')];const go=btns[btns.length-1];if(go)fits.appendChild(h('button',{class:'btn pri',onclick:()=>go.click()},'Continue to the method and problems ▶'));b.appendChild(fits);
+ T.insertBefore(b,T.firstChild);
+ document.addEventListener('DOMContentLoaded',()=>{const a=document.querySelector('#nav .navi .nt');if(a)a.textContent=T.id==='method'?'Concept and method':'Concept and overview';const o=document.querySelector('#navsel option');if(o)o.textContent=(T.id==='method'?'★  Concept and method':'★  Concept and overview')})}
+window.CV={mount,nest,N,E};window.CVD={};
+})();
+
+CVD.useless=(function(N,E,nest){return{
+name:'Eliminating useless symbols',
+io:['A CFG, e.g. <span class="m">S → AB | a,  A → a</span>','Find symbols that cannot finish (non-generating) or cannot be reached from S','An equivalent grammar with every symbol useful'],
+plain:`A symbol is <b>useless</b> if it can never help produce a string. There are two ways to be useless. A symbol may be <b>non-generating</b>: every rule for it leads to more of the same, so it can never turn into letters only. Or it may be <b>unreachable</b>: no derivation from S ever uses it. Removing useless symbols (and the rules that mention them) makes the grammar smaller and does not change the language.`,
+does:`It <b>cleans up</b> a grammar. It is done first when simplifying a grammar towards Chomsky normal form. The order matters: remove non-generating symbols first, then unreachable ones, because the first step can make more symbols unreachable.`,
+formal:['X is <b>generating</b> if  X ⇒* w  for some w ∈ T*.   X is <b>reachable</b> if  S ⇒* αXβ  for some α, β.','X is <b>useful</b> if  S ⇒* αXβ ⇒* w  for some w ∈ T*; otherwise useless.','Computing generating symbols: every terminal is generating; A is generating if some rule A → α has only generating symbols in α. Repeat until nothing is added.','Computing reachable symbols: S is reachable; if A is reachable and A → α, every symbol in α is reachable. Repeat.','Algorithm:  (1) delete the non-generating symbols and all rules containing them;  (2) in what is left, delete the unreachable symbols and all rules containing them.','L(G) is unchanged.'],
+viz:[{title:'S → AB | a,   A → a   (B has no rules)',kind:'fsm',nodes:[N('S',90,110,{start:true,fill:'#e6f4ea',stroke:'#2e7d4f'}),N('A',320,40,{fill:'#eceff3',stroke:'#9aa6b8'}),N('B',320,180,{fill:'#fbe0e0',stroke:'#b3261e'})],edges:[E('S','A',''),E('S','B','')],caption:'Arrow X → Y: Y appears on the right of a rule for X. B (red) cannot generate anything. After B and the rule S → AB are deleted, A is no longer reachable from S (grey).'},{title:'The two steps',kind:'html',html:`<table class="cvtab"><tr><th>Step</th><th>Grammar after the step</th></tr><tr><td>start</td><td class="m">S → AB | a;  A → a</td></tr><tr><td>1. delete non-generating B (and S → AB)</td><td class="m">S → a;  A → a</td></tr><tr><td>2. delete unreachable A</td><td class="m"><mark>S → a</mark></td></tr></table><p class="cvcap">If you removed unreachable symbols first, A would wrongly stay: that is why the order matters.</p>`}],
+practical:[['Parser generators','Tools such as yacc warn about rules that can never be used or never finish.'],['Grammar debugging','A typo that creates a variable with no productions is found at once.'],['Normalisation','The first cleaning step before converting to Chomsky normal form.'],['Smaller parsers','Fewer symbols mean smaller tables.']],
+terms:[['Generating','can derive a string of terminals'],['Reachable','appears in some derivation from S'],['Useful','generating and reachable (in the right order)'],['Useless','not useful']],
+confuse:['Do the generating test first, then the reachability test on what is left.','A symbol can generate strings and still be useless if S can never reach it.'],
+fits:'Builds on: context-free grammars. Leads to: ε- and unit-production removal, CNF.'}})(CV.N,CV.E,CV.nest);
+CV.mount(CVD.useless);
+</script>
+</body></html>
